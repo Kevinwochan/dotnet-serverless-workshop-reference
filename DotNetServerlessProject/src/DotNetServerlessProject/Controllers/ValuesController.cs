@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Store.Model;
+using Store.Access;
 
 namespace DotNetServerlessProject.Controllers;
 
-[Route("api/[controller]")]
+[Route("/api")]
 public class ValuesController : ControllerBase
 {
+    private static MessageRepository messageRepository = new MessageRepository(new DynamoDBContext(new AmazonDynamoDBClient()));
     // GET api/values
     [HttpGet]
     public IEnumerable<string> Get()
@@ -26,9 +31,10 @@ public class ValuesController : ControllerBase
     }
 
     // PUT api/values/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody]string value)
+    [HttpPut]
+    public async Task<Guid> Put([FromBody]Message message)
     {
+        return await messageRepository.CreateAsync(message);
     }
 
     // DELETE api/values/5
