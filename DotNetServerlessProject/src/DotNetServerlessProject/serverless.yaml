@@ -4,6 +4,60 @@ Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application that uses the ASP.NET Core framework running
   in Amazon Lambda.
 Resources:
+  EventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "My Description"
+      EventPattern:
+        source:
+          - "my.source"
+      Targets:
+        - Arn: !GetAtt LogGroupForEvents.Arn
+          Id: LogTarget
+  LogGroupForEvents:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/vendedlogs/events/resource-policy-test
+  LogGroupForEventsPolicy:
+    Type: AWS::Logs::ResourcePolicy
+    Properties:
+      PolicyName: EventBridgeToCWLogsPolicy
+      PolicyDocument: !Sub >
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "EventBridgetoCWLogsCreateLogStreamPolicy",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "events.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "logs:CreateLogStream"
+              ],
+              "Resource": [
+                "${LogGroupForEvents.Arn}"
+              ]
+            },
+            {
+              "Sid": "EventBridgetoCWLogsPutLogEventsPolicy",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "events.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "logs:PutLogEvents"
+              ],
+              "Resource": [
+                "${LogGroupForEvents.Arn}"
+              ]
+            }
+          ]
+        }
   StorageTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
@@ -23,6 +77,13 @@ Resources:
       - AWSLambda_FullAccess
       - DynamoDBCrudPolicy:
           TableName: !Ref StorageTable
+      - Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - events:PutEvents
+            Resource:
+              - '*'
       Events:
         ProxyResource:
           Type: Api

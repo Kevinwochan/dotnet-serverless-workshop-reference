@@ -1,14 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.EventBridge.Model;
+using Amazon.EventBridge;
 using Store.Model;
 using Store.Access;
+using Producer.Data;
 
 namespace DotNetServerlessProject.Controllers;
 
 [Route("/api")]
 public class ValuesController : ControllerBase
 {
+    public record MessageIDRequest(string messageID);
     private static MessageRepository messageRepository = new MessageRepository(new DynamoDBContext(new AmazonDynamoDBClient()));
     // GET api/values
     [HttpGet]
@@ -26,8 +30,12 @@ public class ValuesController : ControllerBase
 
     // POST api/values
     [HttpPost]
-    public void Post([FromBody]string value)
-    {
+    public async Task<Guid> Post([FromBody] MessageIDRequest messageIDRequest){
+        Message message = await messageRepository.GetByIdAsync(new Guid(messageIDRequest.messageID)) ?? new Message {myID = Guid.Empty, message= "empty", otherStuff="empty"};
+        PutEventsRequest events = new Event().eventBuilder(message);
+        AmazonEventBridgeClient client = new AmazonEventBridgeClient();
+        await client.PutEventsAsync(events);
+        return message.myID;
     }
 
     // PUT api/values/5
