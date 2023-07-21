@@ -6,9 +6,9 @@
     "All the command line options for the Lambda command can be specified in this file."
   ],
   "profile": "",
-  "region": "",
+  "region": "ap-southeast-2",
   "configuration": "Release",
   "s3-prefix": "DotNetServerlessProject/",
-  "template": "serverless.template",
+  "template": "serverless.yaml",
   "template-parameters": ""
 }
