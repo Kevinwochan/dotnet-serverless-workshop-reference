@@ -22,9 +22,9 @@ Resources:
           Principal:
             Service: events.amazonaws.com
           Action: sns:Publish
-          Resource: !Ref OneStopTopic
+          Resource: !Ref Topic
       Topics:
-        - !Ref OneStopTopic
+        - !Ref Topic
 
   EventRule:
     Type: AWS::Events::Rule
@@ -36,7 +36,7 @@ Resources:
       Targets:
         - Arn: !GetAtt LogGroupForEvents.Arn
           Id: LogTarget
-        - Arn: !Ref OneStopTopic
+        - Arn: !Ref Topic
           Id: "Topic"
   LogGroupForEvents:
     Type: AWS::Logs::LogGroup
