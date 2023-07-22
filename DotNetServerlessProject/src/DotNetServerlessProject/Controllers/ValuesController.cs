@@ -12,7 +12,6 @@ namespace DotNetServerlessProject.Controllers;
 [Route("/api")]
 public class ValuesController : ControllerBase
 {
-    public record MessageIDRequest(string messageID);
     private static MessageRepository messageRepository = new MessageRepository(new DynamoDBContext(new AmazonDynamoDBClient()));
     // GET api/values
     [HttpGet]
@@ -30,8 +29,8 @@ public class ValuesController : ControllerBase
 
     // POST api/values
     [HttpPost]
-    public async Task<Guid> Post([FromBody] MessageIDRequest messageIDRequest){
-        Message message = await messageRepository.GetByIdAsync(new Guid(messageIDRequest.messageID)) ?? new Message {myID = Guid.Empty, message= "empty", otherStuff="empty"};
+    public async Task<Guid> Post([FromBody] string messageId){
+        Message message = await messageRepository.GetByIdAsync(new Guid(messageId)) ?? new Message();
         PutEventsRequest events = new Event().eventBuilder(message);
         AmazonEventBridgeClient client = new AmazonEventBridgeClient();
         await client.PutEventsAsync(events);
