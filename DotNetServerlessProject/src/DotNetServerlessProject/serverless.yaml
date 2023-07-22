@@ -4,12 +4,12 @@ Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application that uses the ASP.NET Core framework running
   in Amazon Lambda.
 Resources:
-  OneStopTopic:
+  Topic:
     Type: AWS::SNS::Topic
-  OneStopSubscription:
+  Subscription:
     Type: AWS::SNS::Subscription
     Properties:
-      TopicArn: !Ref OneStopTopic
+      TopicArn: !Ref Topic
       Endpoint: "+610000000000"
       Protocol: sms
 
