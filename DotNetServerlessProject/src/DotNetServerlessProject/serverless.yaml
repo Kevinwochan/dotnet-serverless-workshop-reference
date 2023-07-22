@@ -4,28 +4,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application that uses the ASP.NET Core framework running
   in Amazon Lambda.
 Resources:
-  Topic:
-    Type: AWS::SNS::Topic
-  Subscription:
-    Type: AWS::SNS::Subscription
-    Properties:
-      TopicArn: !Ref Topic
-      Endpoint: "+610000000000"
-      Protocol: sms
-
-  EventBridgeToSnSPolicy:
-    Type: AWS::SNS::TopicPolicy
-    Properties: 
-      PolicyDocument:
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service: events.amazonaws.com
-          Action: sns:Publish
-          Resource: !Ref Topic
-      Topics:
-        - !Ref Topic
-
   EventRule:
     Type: AWS::Events::Rule
     Properties:
@@ -36,8 +14,6 @@ Resources:
       Targets:
         - Arn: !GetAtt LogGroupForEvents.Arn
           Id: LogTarget
-        - Arn: !Ref Topic
-          Id: "Topic"
   LogGroupForEvents:
     Type: AWS::Logs::LogGroup
     Properties:
